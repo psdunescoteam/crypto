@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Crypto Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .portfolio-overview {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .portfolio-summary {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .portfolio-value {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .portfolio-change {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .asset-distribution {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .add-asset-form {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .submit-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .assets-list {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .asset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .asset-item:last-child {
+            border-bottom: none;
+        }
+
+        .asset-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .asset-name {
+            font-weight: 500;
+        }
+
+        .asset-amount {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .asset-value {
+            text-align: right;
+        }
+
+        .delete-asset {
+            color: var(--negative-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-coins"></i>
+                <span>CryptoDash</span>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="portfolio.html">
+                        <i class="fas fa-wallet"></i>
+                        <span>Portfolio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="markets.html">
+                        <i class="fas fa-globe"></i>
+                        <span>Markets</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="news.html">
+                        <i class="fas fa-newspaper"></i>
+                        <span>News</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <div class="header-left">
+                    <h1>Portfolio</h1>
+                    <p class="date"></p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search assets...">
+                    </div>
+                    <div class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="portfolio-overview">
+                <div class="portfolio-summary">
+                    <h2>Portfolio Summary</h2>
+                    <div class="portfolio-value">$0.00</div>
+                    <div class="portfolio-change">24h Change: <span class="change">0.00%</span></div>
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+                <div class="asset-distribution">
+                    <h2>Asset Distribution</h2>
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="add-asset-form">
+                <h2>Add New Asset</h2>
+                <form id="addAssetForm">
+                    <div class="form-group">
+                        <label for="assetSelect">Select Asset</label>
+                        <select id="assetSelect" required>
+                            <option value="">Select cryptocurrency</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" step="0.000001" required placeholder="Enter amount">
+                    </div>
+                    <button type="submit" class="submit-btn">Add Asset</button>
+                </form>
+            </div>
+
+            <div class="assets-list">
+                <h2>Your Assets</h2>
+                <div id="assetsList">
+                    <!-- Assets will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/portfolio.js"></script>
+</body>
+</html>

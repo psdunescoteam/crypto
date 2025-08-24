@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markets - Crypto Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .markets-grid {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .market-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--card-background);
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .market-table-container {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .market-table th {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .market-table th:hover {
+            color: var(--primary-color);
+        }
+
+        .market-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .coin-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coin-info img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .coin-name {
+            font-weight: 500;
+        }
+
+        .coin-symbol {
+            color: var(--text-color);
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .sparkline {
+            width: 100px;
+            height: 40px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--card-background);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .current-page {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .market-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading i {
+            font-size: 24px;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-coins"></i>
+                <span>CryptoDash</span>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="portfolio.html">
+                        <i class="fas fa-wallet"></i>
+                        <span>Portfolio</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="markets.html">
+                        <i class="fas fa-globe"></i>
+                        <span>Markets</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="news.html">
+                        <i class="fas fa-newspaper"></i>
+                        <span>News</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <div class="header-left">
+                    <h1>Markets</h1>
+                    <p class="date"></p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search coins...">
+                    </div>
+                    <div class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="markets-grid">
+                <!-- Market Stats -->
+                <div class="market-stats">
+                    <div class="stat-card">
+                        <h3>Market Cap</h3>
+                        <div class="stat-value" id="totalMarketCap">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>24h Volume</h3>
+                        <div class="stat-value" id="total24hVolume">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>BTC Dominance</h3>
+                        <div class="stat-value" id="btcDominance">0.00%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Cryptocurrencies</h3>
+                        <div class="stat-value" id="activeCryptos">0</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="market-filters">
+                    <div class="filter-group">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy">
+                            <option value="market_cap_desc">Market Cap ↓</option>
+                            <option value="market_cap_asc">Market Cap ↑</option>
+                            <option value="price_desc">Price ↓</option>
+                            <option value="price_asc">Price ↑</option>
+                            <option value="volume_desc">Volume ↓</option>
+                            <option value="volume_asc">Volume ↑</option>
+                            <option value="change_desc">24h Change ↓</option>
+                            <option value="change_asc">24h Change ↑</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="priceRange">Price Range:</label>
+                        <input type="number" id="minPrice" placeholder="Min $">
+                        <input type="number" id="maxPrice" placeholder="Max $">
+                    </div>
+                    <div class="filter-group">
+                        <label for="showRows">Show:</label>
+                        <select id="showRows">
+                            <option value="50">50 rows</option>
+                            <option value="100">100 rows</option>
+                            <option value="200">200 rows</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Market Table -->
+                <div class="market-table-container">
+                    <table class="market-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>24h %</th>
+                                <th>7d %</th>
+                                <th>Market Cap</th>
+                                <th>Volume(24h)</th>
+                                <th>Circulating Supply</th>
+                                <th>Last 7 Days</th>
+                            </tr>
+                        </thead>
+                        <tbody id="marketTableBody">
+                            <!-- Table content will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <!-- Pagination buttons will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/markets.js"></script>
+</body>
+</html>
