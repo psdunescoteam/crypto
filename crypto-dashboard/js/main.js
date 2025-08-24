@@ -9,6 +9,7 @@ const priceChart = document.getElementById('priceChart');
 // Constants
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 let MAX_DATA_POINTS = 100; // Maximum number of points to show on chart
+//aaron
 
 // Websocket and Chart variables
 let webSocket;
