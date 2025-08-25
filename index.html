@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyatomic Ion Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Styles for the 3D card flip effect */
+        .card-container {
+            perspective: 1000px;
+        }
+        .card {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .card-face-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md mx-auto">
+        <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-2">Polyatomic Ion Flashcards</h1>
+        <p id="card-counter" class="text-center text-gray-500 dark:text-gray-400 mb-6">Card 1 of 105</p>
+
+        <!-- Card Container -->
+        <div id="flashcard-container" class="card-container w-full h-64 mb-6">
+            <div id="flashcard" class="card w-full h-full cursor-pointer shadow-lg rounded-xl">
+                <!-- Front of the card (Formula) -->
+                <div class="card-face card-face-front bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <p id="card-formula" class="text-5xl font-bold text-gray-900 dark:text-white"></p>
+                </div>
+                <!-- Back of the card (Name) -->
+                <div class="card-face card-face-back bg-blue-500 dark:bg-blue-700 rounded-xl">
+                    <p id="card-name" class="text-3xl font-semibold text-white px-4 text-center"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex items-center justify-center space-x-4">
+            <button id="prev-btn" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold rounded-lg shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200">
+                Previous
+            </button>
+            <button id="shuffle-btn" class="px-6 py-3 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-200">
+                Shuffle
+            </button>
+            <button id="next-btn" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold rounded-lg shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200">
+                Next
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: Polyatomic Ions ---
+        // An array of objects, each representing a flashcard.
+        // The 'formula' is written in HTML to correctly display sub/superscripts.
+        const flashcards = [
+            // Common Ions
+            { formula: 'Cl<sup>-</sup>', name: 'Chloride' },
+            { formula: 'ClO<sup>-</sup>', name: 'Hypochlorite' },
+            { formula: 'ClO<sub>2</sub><sup>-</sup>', name: 'Chlorite' },
+            { formula: 'ClO<sub>3</sub><sup>-</sup>', name: 'Chlorate' },
+            { formula: 'ClO<sub>4</sub><sup>-</sup>', name: 'Perchlorate' },
+            { formula: 'NO<sub>3</sub><sup>-</sup>', name: 'Nitrate' },
+            { formula: 'NO<sub>2</sub><sup>-</sup>', name: 'Nitrite' },
+            { formula: 'N<sup>3-</sup>', name: 'Nitride' },
+            { formula: 'N<sub>3</sub><sup>-</sup>', name: 'Azide' },
+            { formula: 'NH<sub>2</sub><sup>-</sup>', name: 'Amide (Azanide)' },
+            { formula: 'NH<sub>3</sub>', name: 'Ammonia' },
+            { formula: 'NH<sub>4</sub><sup>+</sup>', name: 'Ammonium' },
+            { formula: 'OH<sup>-</sup>', name: 'Hydroxide' },
+            { formula: 'O<sup>2-</sup>', name: 'Oxide' },
+            { formula: 'O<sub>2</sub><sup>2-</sup>', name: 'Peroxide' },
+            { formula: 'O<sub>2</sub><sup>-</sup>', name: 'Superoxide' },
+            { formula: 'O<sub>3</sub><sup>-</sup>', name: 'Ozonide' },
+            { formula: 'H<sub>3</sub>O<sup>+</sup>', name: 'Hydronium' },
+            { formula: 'I<sub>3</sub><sup>-</sup>', name: 'Triiodide' },
+            { formula: 'Br<sup>-</sup>', name: 'Bromide' },
+            { formula: 'BrO<sup>-</sup>', name: 'Hypobromite' },
+            { formula: 'BrO<sub>2</sub><sup>-</sup>', name: 'Bromite' },
+            { formula: 'BrO<sub>3</sub><sup>-</sup>', name: 'Bromate' },
+            { formula: 'BrO<sub>4</sub><sup>-</sup>', name: 'Perbromate' },
+            { formula: 'SO<sub>4</sub><sup>2-</sup>', name: 'Sulfate' },
+            { formula: 'SO<sub>3</sub><sup>2-</sup>', name: 'Sulfite' },
+            { formula: 'S<sup>2-</sup>', name: 'Sulfide' },
+            { formula: 'S<sub>2</sub>O<sub>3</sub><sup>2-</sup>', name: 'Thiosulfate' },
+            { formula: 'S<sub>2</sub>O<sub>7</sub><sup>2-</sup>', name: 'Disulfate (Pyrosulfate)' },
+            { formula: 'S<sub>2</sub>O<sub>8</sub><sup>2-</sup>', name: 'Peroxydisulfate' },
+            { formula: 'SO<sub>5</sub><sup>2-</sup>', name: 'Persulfate' },
+            { formula: 'SCN<sup>-</sup>', name: 'Thiocyanate' },
+            { formula: 'OCN<sup>-</sup>', name: 'Cyanate' },
+            { formula: 'CN<sup>-</sup>', name: 'Cyanide' },
+            { formula: 'SiO<sub>3</sub><sup>2-</sup>', name: 'Metasilicate' },
+            { formula: 'SiO<sub>4</sub><sup>4-</sup>', name: 'Orthosilicate' },
+            { formula: 'Si<sub>2</sub>O<sub>7</sub><sup>6-</sup>', name: 'Pyrosilicate' },
+            { formula: 'I<sup>-</sup>', name: 'Iodide' },
+            { formula: 'IO<sup>-</sup>', name: 'Hypoiodite' },
+            { formula: 'IO<sub>2</sub><sup>-</sup>', name: 'Iodite' },
+            { formula: 'IO<sub>3</sub><sup>-</sup>', name: 'Iodate' },
+            { formula: 'IO<sub>4</sub><sup>-</sup>', name: 'Periodate' },
+            { formula: 'PO<sub>4</sub><sup>3-</sup>', name: 'Phosphate' },
+            { formula: 'PO<sub>3</sub><sup>3-</sup>', name: 'Phosphite' },
+            { formula: 'P<sup>3-</sup>', name: 'Phosphide' },
+            { formula: 'P<sub>2</sub>O<sub>7</sub><sup>4-</sup>', name: 'Diphosphate (Pyrophosphate)' },
+            { formula: 'P<sub>3</sub>O<sub>10</sub><sup>5-</sup>', name: 'Triphosphate' },
+            { formula: 'CrO<sub>4</sub><sup>2-</sup>', name: 'Chromate' },
+            { formula: 'Cr<sub>2</sub>O<sub>7</sub><sup>2-</sup>', name: 'Dichromate' },
+            { formula: 'CO<sub>3</sub><sup>2-</sup>', name: 'Carbonate' },
+            { formula: 'CO<sub>2</sub><sup>2-</sup>', name: 'Percarbonate' },
+            { formula: 'C<sub>2</sub><sup>2-</sup>', name: 'Carbide' },
+            { formula: 'C<sub>2</sub>O<sub>4</sub><sup>2-</sup>', name: 'Oxalate' },
+            { formula: 'MnO<sub>4</sub><sup>-</sup>', name: 'Permanganate' },
+            { formula: 'MnO<sub>4</sub><sup>2-</sup>', name: 'Manganate' },
+            { formula: 'BO<sub>3</sub><sup>3-</sup>', name: 'Borate' },
+
+            // Organic, Hydrogen, Uncommon Ions
+            { formula: 'C<sub>2</sub>H<sub>3</sub>O<sub>2</sub><sup>-</sup>', name: 'Acetate' },
+            { formula: 'CH<sub>3</sub>COO<sup>-</sup>', name: 'Acetate' },
+            { formula: 'HCOO<sup>-</sup>', name: 'Formate' },
+            { formula: 'C<sub>7</sub>H<sub>5</sub>O<sub>2</sub><sup>-</sup>', name: 'Benzoate' },
+            { formula: 'C<sub>6</sub>H<sub>5</sub>COO<sup>-</sup>', name: 'Benzoate' },
+            { formula: 'C<sub>3</sub>H<sub>5</sub>O<sub>3</sub><sup>-</sup>', name: 'Lactate' },
+            { formula: 'C<sub>4</sub>H<sub>4</sub>O<sub>6</sub><sup>2-</sup>', name: 'Tartrate' },
+            { formula: 'C<sub>6</sub>H<sub>5</sub>O<sub>7</sub><sup>3-</sup>', name: 'Citrate' },
+            { formula: 'C<sub>8</sub>H<sub>4</sub>O<sub>4</sub><sup>2-</sup>', name: 'Phthalate' },
+            { formula: 'HCO<sub>3</sub><sup>-</sup>', name: 'Hydrogen Carbonate (Bicarbonate)' },
+            { formula: 'HSO<sub>4</sub><sup>-</sup>', name: 'Hydrogen Sulfate (Bisulfate)' },
+            { formula: 'HSO<sub>3</sub><sup>-</sup>', name: 'Hydrogen Sulfite (Bisulfite)' },
+            { formula: 'HS<sup>-</sup>', name: 'Hydrogen Sulfide' },
+            { formula: 'HPO<sub>4</sub><sup>2-</sup>', name: 'Hydrogen Phosphate' },
+            { formula: 'H<sub>2</sub>PO<sub>4</sub><sup>-</sup>', name: 'Dihydrogen Phosphate' },
+            { formula: 'HPO<sub>3</sub><sup>2-</sup>', name: 'Hydrogen Phosphite' },
+            { formula: 'H<sub>2</sub>PO<sub>3</sub><sup>-</sup>', name: 'Dihydrogen Phosphite' },
+            { formula: 'CNO<sup>-</sup>', name: 'Fulminate' },
+            { formula: 'SiF<sub>6</sub><sup>2-</sup>', name: 'Hexafluorosilicate' },
+            { formula: 'SnO<sub>3</sub><sup>2-</sup>', name: 'Stannate' },
+            { formula: 'SnO<sub>2</sub><sup>2-</sup>', name: 'Stannite' },
+            { formula: 'GeO<sub>3</sub><sup>2-</sup>', name: 'Germanate' },
+            { formula: 'Fe(CN)<sub>6</sub><sup>3-</sup>', name: 'Ferricyanide' },
+            { formula: 'Fe(CN)<sub>6</sub><sup>4-</sup>', name: 'Ferrocyanide' },
+            { formula: 'FeSCN<sup>2+</sup>', name: 'Ferric Thiocyanate' },
+            { formula: 'AsO<sub>4</sub><sup>3-</sup>', name: 'Arsenate' },
+            { formula: 'AsO<sub>3</sub><sup>3-</sup>', name: 'Arsenite' },
+            { formula: 'BiO<sub>3</sub><sup>-</sup>', name: 'Bismuthate' },
+            { formula: 'SbO<sub>4</sub><sup>3-</sup>', name: 'Antimonate' },
+            { formula: 'MoO<sub>4</sub><sup>2-</sup>', name: 'Molybdate' },
+            { formula: 'WO<sub>4</sub><sup>2-</sup>', name: 'Tungstate' },
+            { formula: 'VO<sub>3</sub><sup>-</sup>', name: 'Vanadate' },
+            { formula: 'VO<sub>4</sub><sup>3-</sup>', name: 'Orthovanadate' },
+            { formula: 'Se<sup>2-</sup>', name: 'Selenide' },
+            { formula: 'SeO<sub>4</sub><sup>2-</sup>', name: 'Selenate' },
+            { formula: 'SeO<sub>3</sub><sup>2-</sup>', name: 'Selenite' },
+            { formula: 'TeO<sub>4</sub><sup>2-</sup>', name: 'Tellurate' },
+            { formula: 'S<sub>2</sub>O<sub>6</sub><sup>2-</sup>', name: 'Dithionate' },
+            { formula: 'S<sub>2</sub>O<sub>4</sub><sup>2-</sup>', name: 'Dithionite' },
+            { formula: 'B<sub>4</sub>O<sub>7</sub><sup>2-</sup>', name: 'Tetraborate' },
+            { formula: 'Zn(OH)<sub>4</sub><sup>2-</sup>', name: 'Zincate' }
+        ];
+
+        // --- DOM Elements ---
+        const card = document.getElementById('flashcard');
+        const cardFormula = document.getElementById('card-formula');
+        const cardName = document.getElementById('card-name');
+        const cardCounter = document.getElementById('card-counter');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+
+        // --- State ---
+        let currentIndex = 0;
+        let currentDeck = [...flashcards]; // Create a mutable copy of the deck
+
+        // --- Functions ---
+
+        /**
+         * Updates the card content based on the current index.
+         */
+        function updateCard() {
+            const currentCard = currentDeck[currentIndex];
+            cardFormula.innerHTML = currentCard.formula;
+            cardName.textContent = currentCard.name;
+            cardCounter.textContent = `Card ${currentIndex + 1} of ${currentDeck.length}`;
+            // Ensure card is always showing the front when it's updated
+            if (card.classList.contains('is-flipped')) {
+                card.classList.remove('is-flipped');
+            }
+        }
+
+        /**
+         * Flips the card when clicked.
+         */
+        function flipCard() {
+            card.classList.toggle('is-flipped');
+        }
+
+        /**
+         * Navigates to the next card.
+         */
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % currentDeck.length;
+            updateCard();
+        }
+
+        /**
+         * Navigates to the previous card.
+         */
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + currentDeck.length) % currentDeck.length;
+            updateCard();
+        }
+        
+        /**
+         * Shuffles the deck using the Fisher-Yates algorithm.
+         */
+        function shuffleDeck() {
+            for (let i = currentDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+            }
+            currentIndex = 0; // Reset to the first card
+            updateCard();
+        }
+
+
+        // --- Event Listeners ---
+        card.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', nextCard);
+        prevBtn.addEventListener('click', prevCard);
+        shuffleBtn.addEventListener('click', shuffleDeck);
+
+        // --- Initial Load ---
+        updateCard(); // Display the first card on page load
+
+    </script>
+</body>
+</html>
